@@ -34,3 +34,39 @@ num_class = 10
 y_train_onehot = np.eye(num_class)[y_train]     # 10*10 unit matrix * y_train (number 0~9 matrix)
 y_test_onehot = np.eye(num_class)[y_test]
 
+
+# ====== Model Definition & Initialization ======
+# Weight initialization
+# Layer 1 (Input): 784 neurons
+# Layer 2 (Hidden): 100 neurons 
+# Layer 3 (Hidden): 150 neurons
+# Layer 4 (Output): 10 neurons
+
+def initialize_parameters():
+    np.random.seed(42)
+    parameters = {    
+        "W1": np.random.randn(784, 100) * 0.01,
+        "b1": np.zeros((1, 100), dtype=float) * 0.01,
+        "W2": np.random.randn(100, 150) * 0.01,
+        "b2": np.zeros((1, 150), dtype=float) * 0.01,
+        "W3": np.random.randn(150, 10) * 0.01,
+        "b3": np.zeros((1, 10), dtype=float) * 0.01
+    }
+    return parameters
+
+# Define activation functions
+def Relu(Z):                        # For forward propagation
+    return np.maximum(0, Z)
+
+def Relu_derivative(Z):             # For back propagation
+    return (Z > 0).astype(float)
+
+def softmax(Z):                     # For forward propagation
+    # Avoide overflow
+    exp_Z = np.exp(Z - np.max(Z, axis=1, keepdims=True))
+    
+    # Return propability distribution (sum = 1)
+    return exp_Z / np.sum(exp_Z, axis=1, keepdims=True)
+
+
+# ====== Define forward propagation ======
