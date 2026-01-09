@@ -1,4 +1,4 @@
-# FNN_Implementation
+# FNN_Implementation from Scratch
 Implement a feedforward neural network (FNN) model to classify the MNIST dataset.
 
 Design a FNN model architecture with 2 hidden layers and perform the random initialization for model weights. 
