@@ -27,7 +27,7 @@ x_test_flatten = x_test.reshape(x_test.shape[0], -1)
 
 # Normalize (avoid overflow)
 x_train_norm = x_train_flatten.astype("float32") / 255.0
-x_test_nome = x_test_flatten.astype("float32") / 255.0
+x_test_norm = x_test_flatten.astype("float32") / 255.0
 
 # One-hot encoding 
 num_class = 10
@@ -115,7 +115,7 @@ def cross_entropy(A3, Y):
     return loss
 
 
-# ====== Define backpropagation function ======
+# ====== Define backward propagation function ======
 def back_propagation(X, Y, parameters, cache):
     m = X.shape[0]
     
@@ -137,7 +137,7 @@ def back_propagation(X, Y, parameters, cache):
     # ------ First hidden layer ------
     dA1 = np.dot(dZ2, W2.T)
     dZ1 = dA1 * Relu_derivative(Z1)
-    dW1 = (1/m) * np.dot(X,T, dZ1)
+    dW1 = (1/m) * np.dot(X.T, dZ1)
     db1 = (1/m) * np.sum(dZ1, axis=0, keepdims=True)
     
     grads = {
@@ -148,3 +148,57 @@ def back_propagation(X, Y, parameters, cache):
     
     return grads
 
+
+# ====== Update weights & biases ======
+def update_parameters(parameters, grads, learning_rate):
+    parameters["W1"] -= learning_rate * grads["dW1"]
+    parameters["b1"] -= learning_rate * grads["db1"]
+    parameters["W2"] -= learning_rate * grads["dW2"]
+    parameters["b2"] -= learning_rate * grads["db2"]
+    parameters["W3"] -= learning_rate * grads["dW3"]
+    parameters["b3"] -= learning_rate * grads["db3"]
+    
+    return parameters
+
+
+# ====== Train the Neural Network ======
+# Set hyperparameters
+epochs = 100
+batch_size = 128
+learning_rate = 0.1
+m = x_train_norm.shape[0]
+
+def train(X_train, Y_train, epochs, batch_size, learning_rate):
+    # Initialize parameters
+    parameters = initialize_parameters(input_neurons, hidden1_neurons, hidden2_neurons, output_neurons)
+    
+    # Training loop
+    for epoch in range (epochs):
+        # shuffle data
+        permutation = np.random.permutation(m)
+        x_shuffled = x_train_norm[permutation]
+        y_shuffled = y_train_onehot[permutation]
+        
+        for i in range(0, m, batch_size):
+            # get data
+            x_batch = x_shuffled[i:i + batch_size]
+            y_batch = y_shuffled[i:i + batch_size]
+            
+            # forward propagation
+            a3, cache = forward_propagation(x_batch, parameters)
+            
+            # Compute loss
+            loss = cross_entropy(a3, y_batch)
+            
+            # Backward propagation
+            grads = back_propagation(x_batch, y_batch, parameters, cache)
+            
+            # Update parameters
+            parameters = update_parameters(parameters, grads, learning_rate)
+        print(f"Epoch {epoch+1}/{epochs}, loss: {loss: .4f}")
+    
+    return parameters
+
+# ====== Call training function ======
+process = train(x_train_norm, y_train_onehot, epochs, batch_size, learning_rate)
+        
