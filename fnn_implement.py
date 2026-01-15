@@ -93,7 +93,7 @@ def forward_propagation(X, parameters):
     
     # Third hidden layer
     Z3 = np.dot(A2, W3) + b3
-    A3 = Relu(Z3)    
+    A3 = softmax(Z3)    
     
     # Store values for backpropagation
     cache = {
@@ -103,4 +103,48 @@ def forward_propagation(X, parameters):
     }
     
     return A3, cache
+
+
+# ====== Define loss function ======
+def cross_entropy(A3, Y):
+    m = Y.shape[0]
+    
+    # Compute cross entropy: -1/m * sum(Y * log(A3))
+    loss = -(1/m) * np.sum(Y * np.log(A3 + 1e-8))   # avoid log(0)
+    
+    return loss
+
+
+# ====== Define backpropagation function ======
+def back_propagation(X, Y, parameters, cache):
+    m = X.shape[0]
+    
+    A1, A2, A3 = cache["A1"], cache["A2"], cache["A3"]
+    Z1, Z2 = cache["Z1"], cache["Z2"]
+    W2, W3 = parameters["W2"], parameters["W3"]
+    
+    # ------ output layer ------
+    dZ3 = A3 - Y
+    dW3 = (1/m) * np.dot(A2.T, dZ3)     # Transpose
+    db3 = (1/m) * np.sum(dZ3, axis=0, keepdims=True)
+    
+    # ------ Second hidden layer ------
+    dA2 = np.dot(dZ3, W3.T)
+    dZ2 = dA2 * Relu_derivative(Z2)     # Multiply each elements
+    dW2 = (1/m) * np.dot(A1.T, dZ2)
+    db2 = (1/m) * np.sum(dZ2, axis=0, keepdims=True)
+    
+    # ------ First hidden layer ------
+    dA1 = np.dot(dZ2, W2.T)
+    dZ1 = dA1 * Relu_derivative(Z1)
+    dW1 = (1/m) * np.dot(X,T, dZ1)
+    db1 = (1/m) * np.sum(dZ1, axis=0, keepdims=True)
+    
+    grads = {
+        "dW1": dW1, "db1": db1,
+        "dW2": dW2, "db2": db2,
+        "dW3": dW3, "db3": db3
+    }
+    
+    return grads
 
