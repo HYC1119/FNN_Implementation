@@ -41,8 +41,12 @@ y_test_onehot = np.eye(num_class)[y_test]
 # Layer 2 (Hidden): 100 neurons 
 # Layer 3 (Hidden): 150 neurons
 # Layer 4 (Output): 10 neurons
+input_neurons = 784
+hidden1_neurons = 100
+hidden2_neurons = 150 
+output_neurons = 10
 
-def initialize_parameters():
+def initialize_parameters(input_neurons, hidden1_neurons, hidden2_neurons, output_neurons):
     np.random.seed(42)
     parameters = {    
         "W1": np.random.randn(784, 100) * 0.01,
@@ -53,6 +57,8 @@ def initialize_parameters():
         "b3": np.zeros((1, 10), dtype=float) * 0.01
     }
     return parameters
+
+parameters = initialize_parameters(input_neurons, hidden1_neurons, hidden2_neurons, output_neurons)
 
 # Define activation functions
 def Relu(Z):                        # For forward propagation
@@ -70,3 +76,31 @@ def softmax(Z):                     # For forward propagation
 
 
 # ====== Define forward propagation ======
+def forward_propagation(X, parameters):
+    # Extract weights and biases
+    W1, b1 = parameters["W1"], parameters["b1"]
+    W2, b2 = parameters["W2"], parameters["b2"]
+    W3, b3 = parameters["W3"], parameters["b3"]
+    
+    # Forward pass
+    # First hidden layer
+    Z1 = np.dot(X, W1) + b1
+    A1 = Relu(Z1)
+    
+    # Second hidden layer
+    Z2 = np.dot(A1, W2) + b2
+    A2 = Relu(Z2)
+    
+    # Third hidden layer
+    Z3 = np.dot(A2, W3) + b3
+    A3 = Relu(Z3)    
+    
+    # Store values for backpropagation
+    cache = {
+        "Z1": Z1, "A1": A1, 
+        "Z2": Z2, "A2": A2,
+        "Z3": Z3, "A3": A3
+    }
+    
+    return A3, cache
+
