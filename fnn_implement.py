@@ -49,11 +49,11 @@ output_neurons = 10
 def initialize_parameters(input_neurons, hidden1_neurons, hidden2_neurons, output_neurons):
     np.random.seed(42)
     parameters = {    
-        "W1": np.random.randn(784, 100) * 0.01,
+        "W1": np.random.randn(784, 100) * np.sqrt(2. / 784),    # He initialization to avoid signal from shrinking
         "b1": np.zeros((1, 100), dtype=float) * 0.01,
-        "W2": np.random.randn(100, 150) * 0.01,
+        "W2": np.random.randn(100, 150) * np.sqrt(2. / 100),
         "b2": np.zeros((1, 150), dtype=float) * 0.01,
-        "W3": np.random.randn(150, 10) * 0.01,
+        "W3": np.random.randn(150, 10) * np.sqrt(2. / 150),
         "b3": np.zeros((1, 10), dtype=float) * 0.01
     }
     return parameters
@@ -164,13 +164,19 @@ def update_parameters(parameters, grads, learning_rate):
 # ====== Train the Neural Network ======
 # Set hyperparameters
 epochs = 100
-batch_size = 128
-learning_rate = 0.1
+batch_size = 32
+learning_rate = 0.01
 m = x_train_norm.shape[0]
 
 def train(X_train, Y_train, epochs, batch_size, learning_rate):
     # Initialize parameters
     parameters = initialize_parameters(input_neurons, hidden1_neurons, hidden2_neurons, output_neurons)
+    
+    # Store history 
+    history = {
+        "train_loss": [], "test_loss": [],
+        "train_acc": [], "test_acc": []
+    }
     
     # Training loop
     for epoch in range (epochs):
@@ -195,10 +201,70 @@ def train(X_train, Y_train, epochs, batch_size, learning_rate):
             
             # Update parameters
             parameters = update_parameters(parameters, grads, learning_rate)
-        print(f"Epoch {epoch+1}/{epochs}, loss: {loss: .4f}")
+        
+        # Calculate training data
+        a3_train, _ = forward_propagation(X_train, parameters)      # _ is to ignore unnecessary cache
+        train_loss = cross_entropy(a3_train, Y_train)
+        train_acc = np.mean(np.argmax(a3_train, axis=1) == np.argmax(Y_train, axis=1))
+        
+        # Calculate testing data
+        a3_test, _ = forward_propagation(x_test_norm, parameters)
+        test_loss = cross_entropy(a3_test, y_test_onehot)
+        test_acc = np.mean(np.argmax(a3_test, axis=1) == y_test)
+        
+        # Store in to history
+        history["train_loss"].append(train_loss)
+        history["test_loss"].append(test_loss)
+        history["train_acc"].append(train_acc)
+        history["test_acc"].append(test_acc)
+        
+        print(f"Epoch {epoch+1}/{epochs} - Loss: {train_loss: .4f} - Acc: {train_acc: .4f} - Test Acc: {test_acc: .4f}")
     
-    return parameters
+    return parameters, history
 
-# ====== Call training function ======
-process = train(x_train_norm, y_train_onehot, epochs, batch_size, learning_rate)
+# ====== Plot ======
+
+def plot_learning_curves(history):
+    epochs_range = range(1, len(history["train_loss"]) + 1)
+    last_epoch = epochs_range[-1]
+    plt.figure(figsize=(12, 5))
+    
+    # Plot loss curves
+    plt.subplot(1, 2, 1)
+    plt.plot(epochs_range, history["train_loss"], label="Train Loss", color="blue")
+    plt.plot(epochs_range, history["test_loss"], label="Test Loss", color="orange")
+    
+    last_train_loss = history["train_loss"][-1]
+    last_test_loss = history["test_loss"][-1]
+    plt.text(last_epoch, last_train_loss, f"({last_epoch}, {last_train_loss: .4f})", color="black", ha="center", va="bottom")
+    plt.text(last_epoch, last_test_loss, f"({last_epoch}, {last_test_loss: .4f})", color="black", ha="center", va="bottom")
+    
+    plt.title("Loss vs. Epochs")
+    plt.xlabel("Epochs")
+    plt.ylabel("Cross Entropy Loss")
+    plt.legend()
+    plt.grid(True)
+    
+    # Plot Accuracy curves
+    plt.subplot(1, 2, 2)
+    plt.plot(epochs_range, history["train_acc"], label="Train Accuracy", color="blue")
+    plt.plot(epochs_range, history["test_acc"], label="Test Accuracy", color="orange")
+    
+    last_train_acc = history["train_acc"][-1]
+    last_test_acc = history["test_acc"][-1]
+    plt.text(last_epoch, last_train_acc, f"({last_epoch}, {last_train_acc: .4f})", color="black", ha="center", va="bottom")
+    plt.text(last_epoch, last_test_acc, f"({last_epoch}, {last_test_acc: .4f})", color="black", ha="center", va="bottom")
+    
+    plt.title("Accuracy vs. Epochs")
+    plt.xlabel("Epochs")
+    plt.ylabel("Accuracy")
+    plt.legend()
+    plt.grid(True)
+    
+    plt.tight_layout()
+    plt.show()
+
+# ====== Call training function & Plot the learning curve ======
+final_params, history = train(x_train_norm, y_train_onehot, epochs, batch_size, learning_rate)
+plot_learning_curves(history)
         
