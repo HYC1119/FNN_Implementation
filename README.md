@@ -8,7 +8,7 @@ Run backpropagation algorithm and use mini-batch SGD (stochastic gradient descen
 ## Dataset
 [MNIST dataset source](https://storage.googleapis.com/tensorflow/tf-keras-datasets/mnist.npz)
 
-Data in `mnist.npz`  
+Data in `mnist.npz`:  
 |Name|Dimension|Description|
 |--|--|--|
 |x_train|(60000,28,28,1)|60000 training images with shape (28,28,1)|
