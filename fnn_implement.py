@@ -164,8 +164,8 @@ def update_parameters(parameters, grads, learning_rate):
 # ====== Train the Neural Network ======
 # Set hyperparameters
 epochs = 100
-batch_size = 32
-learning_rate = 0.01
+batch_size = 128
+learning_rate = 0.001
 m = x_train_norm.shape[0]
 
 def train(X_train, Y_train, epochs, batch_size, learning_rate):
@@ -237,9 +237,9 @@ def plot_learning_curves(history):
     last_train_loss = history["train_loss"][-1]
     last_test_loss = history["test_loss"][-1]
     plt.text(last_epoch, last_train_loss, f"({last_epoch}, {last_train_loss: .4f})", color="black", ha="center", va="bottom")
-    plt.text(last_epoch, last_test_loss, f"({last_epoch}, {last_test_loss: .4f})", color="black", ha="center", va="bottom")
+    plt.text(last_epoch, last_test_loss, f"({last_epoch}, {last_test_loss: .4f})", color="black", ha="center", va="top")
     
-    plt.title("Loss vs. Epochs")
+    plt.title(f"Loss w/ size: {batch_size}, learning rate: {learning_rate}, epochs: {epochs}")
     plt.xlabel("Epochs")
     plt.ylabel("Cross Entropy Loss")
     plt.legend()
@@ -253,9 +253,9 @@ def plot_learning_curves(history):
     last_train_acc = history["train_acc"][-1]
     last_test_acc = history["test_acc"][-1]
     plt.text(last_epoch, last_train_acc, f"({last_epoch}, {last_train_acc: .4f})", color="black", ha="center", va="bottom")
-    plt.text(last_epoch, last_test_acc, f"({last_epoch}, {last_test_acc: .4f})", color="black", ha="center", va="bottom")
+    plt.text(last_epoch, last_test_acc, f"({last_epoch}, {last_test_acc: .4f})", color="black", ha="center", va="top")
     
-    plt.title("Accuracy vs. Epochs")
+    plt.title(f"Accuracy w/ size: {batch_size}, learning rate: {learning_rate}, epochs: {epochs}")
     plt.xlabel("Epochs")
     plt.ylabel("Accuracy")
     plt.legend()
@@ -264,7 +264,45 @@ def plot_learning_curves(history):
     plt.tight_layout()
     plt.show()
 
+def plot_random_10_predictions(parameters, X_raw, X_norm, Y_raw):
+    """
+    parameters: 訓練好的模型參數 (使用隨機初始化訓練出的那組)
+    X_raw: 原始 28x28 圖片數據 (x_test)
+    X_norm: 正規化後的攤平數據 (x_test_norm)
+    Y_raw: 原始標籤 (y_test)
+    """
+    plt.figure(figsize=(15, 6))
+    
+    # 1. 隨機選取 10 個不重複的索引
+    random_indices = np.random.choice(len(X_raw), 10, replace=False)
+    
+    for i, idx in enumerate(random_indices):
+        # 2. 準備輸入數據並進行前向傳播
+        # reshape(1, -1) 是為了符合 batch 格式 (1, 784)
+        img_input = X_norm[idx].reshape(1, -1)
+        a3, _ = forward_propagation(img_input, parameters)
+        
+        # 3. 取得預測數字 (機率最大的索引)
+        prediction = np.argmax(a3, axis=1)[0]
+        actual = Y_raw[idx]
+        
+        # 4. 繪製子圖
+        plt.subplot(2, 5, i + 1)
+        plt.imshow(X_raw[idx], cmap='gray')
+        
+        # 5. 設定標題內容與顏色
+        title_text = f"Index: {idx}\nPred: {prediction}\nActual: {actual}"
+        title_color = "blue" if prediction == actual else "red"
+        
+        plt.title(title_text, color=title_color, fontsize=10)
+        plt.axis('off') # 隱藏座標軸讓畫面更乾淨
+        
+    plt.tight_layout()
+    plt.show()
+
+# ====== 執行預測展示 ======
+# 請確保傳入的是您訓練成功的那組參數 (例如 final_params)
+
 # ====== Call training function & Plot the learning curve ======
 final_params, history = train(x_train_norm, y_train_onehot, epochs, batch_size, learning_rate)
-plot_learning_curves(history)
-        
+plot_random_10_predictions(final_params, x_test, x_test_norm, y_test)
