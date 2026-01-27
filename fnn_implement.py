@@ -161,6 +161,7 @@ def update_parameters(parameters, grads, learning_rate):
     return parameters
 
 
+<<<<<<< HEAD
 # ====== Store model ======
 def save_model(parameters, filename="mnist_model.npy"):
     np.save(filename, parameters)
@@ -169,6 +170,16 @@ def save_model(parameters, filename="mnist_model.npy"):
 def load_model(filename="mnist_model.npy"):
     parameters = np.load(filename, allow_pickle=True).item()
     print(f"Already load model's parameters from {filename}")
+=======
+# ====== Save model & Load model ======
+def save_model(parameters, filename="mnist_model.npy"):
+    np.save(filename, parameters)
+    print(f"Model parameters are saved to: {filename}")
+
+def load_model(filename="mnist_model.npy"):
+    parameters = np.load(filename, allow_pickle=True).item()
+    print(f"Sucessfully load parameters from: {filename} ")
+>>>>>>> feature-inference
     return parameters
 
 
@@ -278,5 +289,11 @@ def plot_learning_curves(history):
 # ====== Call training function & Plot the learning curve ======
 if __name__ == "__main__":
     final_params, history = train(x_train_norm, y_train_onehot, epochs, batch_size, learning_rate)
+<<<<<<< HEAD
     plot_learning_curves(history)
     save_model(final_params)
+=======
+    save_model(final_params, "mnist_model.npy")
+    plot_learning_curves(history)
+
+>>>>>>> feature-inference
