@@ -1,5 +1,6 @@
 # ignore data 
 mnist.npz
+mnist_model.npy
 
 # MacOS system files
 .DS_Store
