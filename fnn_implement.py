@@ -161,6 +161,17 @@ def update_parameters(parameters, grads, learning_rate):
     return parameters
 
 
+# ====== Save model & Load model ======
+def save_model(parameters, filename="mnist_model.npy"):
+    np.save(filename, parameters)
+    print(f"Model parameters are saved to: {filename}")
+
+def load_model(filename="mnist_model.npy"):
+    parameters = np.load(filename, allow_pickle=True).item()
+    print(f"Sucessfully load parameters from: {filename} ")
+    return parameters
+
+
 # ====== Train the Neural Network ======
 # Set hyperparameters
 epochs = 100
@@ -265,5 +276,8 @@ def plot_learning_curves(history):
     plt.show()
 
 # ====== Call training function & Plot the learning curve ======
-final_params, history = train(x_train_norm, y_train_onehot, epochs, batch_size, learning_rate)
-plot_learning_curves(history)
+if __name__ == "__main__":
+    final_params, history = train(x_train_norm, y_train_onehot, epochs, batch_size, learning_rate)
+    save_model(final_params, "mnist_model.npy")
+    plot_learning_curves(history)
+
