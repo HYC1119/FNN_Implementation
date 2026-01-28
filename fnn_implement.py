@@ -31,9 +31,7 @@ x_test_norm = x_test_flatten.astype("float32") / 255.0
 
 # One-hot encoding
 num_class = 10
-y_train_onehot = np.eye(num_class)[
-    y_train
-]  # 10*10 unit matrix * y_train (number 0~9 matrix)
+y_train_onehot = np.eye(num_class)[y_train]  # 10*10 unit matrix * y_train (number 0~9 matrix)
 y_test_onehot = np.eye(num_class)[y_test]
 
 
@@ -49,9 +47,7 @@ hidden2_neurons = 150
 output_neurons = 10
 
 
-def initialize_parameters(
-    input_neurons, hidden1_neurons, hidden2_neurons, output_neurons
-):
+def initialize_parameters(input_neurons, hidden1_neurons, hidden2_neurons, output_neurons):
     np.random.seed(42)
     parameters = {
         "W1": np.random.randn(784, 100) * np.sqrt(2.0 / 784),  # He initialization to avoid signal from shrinking
@@ -64,9 +60,7 @@ def initialize_parameters(
     return parameters
 
 
-parameters = initialize_parameters(
-    input_neurons, hidden1_neurons, hidden2_neurons, output_neurons
-)
+parameters = initialize_parameters(input_neurons, hidden1_neurons, hidden2_neurons, output_neurons)
 
 
 # Define activation functions
@@ -218,9 +212,7 @@ def train(X_train, Y_train, epochs, batch_size, learning_rate):
             parameters = update_parameters(parameters, grads, learning_rate)
 
         # Calculate training data
-        a3_train, _ = forward_propagation(
-            X_train, parameters
-        )  # _ is to ignore unnecessary cache
+        a3_train, _ = forward_propagation(X_train, parameters)  # _ is to ignore unnecessary cache
         train_loss = cross_entropy(a3_train, Y_train)
         train_acc = np.mean(np.argmax(a3_train, axis=1) == np.argmax(Y_train, axis=1))
 
@@ -318,9 +310,7 @@ def plot_learning_curves(history):
 
 # ====== Call training function & Plot the learning curve ======
 if __name__ == "__main__":
-    final_params, history = train(
-        x_train_norm, y_train_onehot, epochs, batch_size, learning_rate
-    )
+    final_params, history = train(x_train_norm, y_train_onehot, epochs, batch_size, learning_rate)
     plot_learning_curves(history)
     save_model(final_params)
     save_model(final_params, "mnist_model.npy")
