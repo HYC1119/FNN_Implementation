@@ -1,17 +1,19 @@
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 from PIL import Image, ImageOps
+
 from fnn_implement import forward_propagation, load_model
 
+
 def predict_digits(image_path, model_path="mnist_model.npy"):
-    
+
     # ------ Load trained parameters -----
     try:
-        parameters = load_model(model_path)    
+        parameters = load_model(model_path)
     except:
         print(f"File {model_path} not found.")
         return
-    
+
     # ------ Image preprocessing ------
     # 1. convert into gray scale
     # 2. reverse color
@@ -20,13 +22,13 @@ def predict_digits(image_path, model_path="mnist_model.npy"):
     # 5. convert to array and normalize to 0~1
     # 6. flatten to 784 dimension
 
-    img = Image.open(image_path).convert('L')
+    img = Image.open(image_path).convert("L")
     img = ImageOps.invert(img)
     bbox = img.getbbox()
     if bbox:
         img = img.crop(bbox)
-    
-    img = img.resize((28,28), Image.Resampling.LANCZOS)
+
+    img = img.resize((28, 28), Image.Resampling.LANCZOS)
     img_array = np.array(img).astype("float32") / 255.0
     img_flatten = img_array.reshape(1, 784)
 
@@ -40,9 +42,9 @@ def predict_digits(image_path, model_path="mnist_model.npy"):
     plt.title(f"Prediction: {prediction} {confidence: .2f}%")
     plt.axis("off")
     plt.show()
-    
+
+
 if __name__ == "__main__":
     image_name = "test_digit_3.PNG"
     weight_file = "mnist_model.npy"
     predict_digits(image_name, model_path=weight_file)
-
